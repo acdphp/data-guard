@@ -1,0 +1,21 @@
+{
+    "name": "cdinopol/data-guard",
+    "description": "Filter out data from an array of a given conditions",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carlo Dinopol",
+            "email": "carlo.dinopol@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.3 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cdinopol\\DataGuard\\": "src/"
+        }
+    }
+}
