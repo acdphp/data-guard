@@ -32,7 +32,7 @@ return [
 ```
 
 ## Usage
-####Basic example
+#### Basic example
 ```php
 use Cdinopol\DataGuard\DataGuard;
 
@@ -47,7 +47,7 @@ print_r($protectedData);
 //['key1' => 'val1'];
 ```
 
-####Array of objects (in a form of associative array) example
+#### Array of objects (in a form of associative array) example
 ```php
 use Cdinopol\DataGuard\DataGuard;
 
