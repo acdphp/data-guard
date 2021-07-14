@@ -111,7 +111,7 @@ $protectedData = DataGuard::protect($data, $resource, $conditions);
 # -------------------------------------------------------------------------
 # Multiple conditions 
 $resource = 'people[]';
-$conditions = [['address:city','!=','Asgard'],['deceased', '!=', true]];
+$conditions = [['address:city','=','Asgard'],['deceased', '=', false]];
 $protectedData = DataGuard::protect($data, $resource, $conditions);
 //Result:
 //[
@@ -180,3 +180,6 @@ $protectedData = DataGuard::protect($data, $resource, $conditions);
 //    'people' => [],
 //];
 ```
+
+## License
+The MIT License (MIT). Please see [License File](LICENSE) for more information.

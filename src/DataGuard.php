@@ -31,6 +31,9 @@ class DataGuard
                         unset($data[$resource][$j]);
                     }
                 }
+
+                // Reindex
+                $data[$resource] = array_values($data[$resource]);
             } elseif (isset($data[$resource])) {
                 if (static::conditions($data[$resource], $conditions)) {
                     unset($data[$resource]);
