@@ -10,8 +10,8 @@ echo '<pre>';
 $data = ['key1' => 'val1', 'key2' => 'val2'];
 $resource = 'key2';
 $conditions = [['=','val2']];
-
 $protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '# Basic example<br/>';
 print_r($protectedData);
 
 # Array of objects (in a form of associative array) example
@@ -60,27 +60,34 @@ $data = [
 # Direct key
 $resource = 'people[]';
 $conditions = [['deceased','=',true]];
-
 $protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '<br/># Direct key<br/>';
+print_r($protectedData);
+
+# Multiple conditions
+$resource = 'people[]';
+$conditions = [['address:city','=','Asgard'],['deceased', '=', false]];
+$protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '<br/># Multiple conditions<br/>';
 print_r($protectedData);
 
 # Multi-level condition
 $resource = 'people[]';
 $conditions = [['address:city','in',['Asgard','New York']]];
-
 $protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '<br/># Multi-level condition<br/>';
 print_r($protectedData);
 
 # Multi-level resource
 $resource = 'people[]:assets[]';
 $conditions = [['cost','>',20]];
-
 $protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '<br/># Multi-level resource<br/>';
 print_r($protectedData);
 
 # Condition all
 $resource = 'people[]';
 $conditions = '*';
-
 $protectedData = DataGuard::protect($data, $resource, $conditions);
+echo '<br/># Condition all<br/>';
 print_r($protectedData);

@@ -103,15 +103,25 @@ $protectedData = DataGuard::protect($data, $resource, $conditions);
 //    'people' => [
 //        [
 //            'name' => 'Thor',
-//            'deceased' => false,
-//            'address' => [
-//                'city' => 'Asgard',
-//                'country' => 'Asgard',
-//            ],
-//            'assets' => [
-//                ['type' => 'house', 'cost' => '20'],
-//                ['type' => 'others', 'cost' => '500'],
-//            ],
+//            ...
+//        ],
+//    ],
+//];
+
+# -------------------------------------------------------------------------
+# Multiple conditions 
+$resource = 'people[]';
+$conditions = [['address:city','!=','Asgard'],['deceased', '!=', true]];
+$protectedData = DataGuard::protect($data, $resource, $conditions);
+//Result:
+//[
+//        [
+//            'name' => 'Tony',
+//            ...
+//        ],
+//        [
+//            'name' => 'Natalia',
+//            ...
 //        ],
 //    ],
 //];
@@ -125,15 +135,7 @@ $protectedData = DataGuard::protect($data, $resource, $conditions);
 //[
 //        [
 //            'name' => 'Natalia',
-//            'deceased' => true,
-//            'address' => [
-//                'city' => 'Moscow',
-//                'country' => 'Russia',
-//            ],
-//            'assets' => [
-//                ['type' => 'bike', 'cost' => '50'],
-//                ['type' => 'accessories', 'cost' => '30'],
-//            ]
+//            ...
 //        ],
 //    ],
 //];
@@ -148,31 +150,19 @@ $protectedData = DataGuard::protect($data, $resource, $conditions);
 //    'people' => [
 //        [
 //            'name' => 'Tony',
-//            'deceased' => true,
-//            'address' => [
-//                'city' => 'New York',
-//                'country' => 'United States',
-//            ],
+//            ...
 //            'assets' => [
 //                ['type' => 'car', 'cost' => '10'],
 //            ]
 //        ],
 //        [
 //            'name' => 'Natalia',
-//            'deceased' => true,
-//            'address' => [
-//                'city' => 'Moscow',
-//                'country' => 'Russia',
-//            ],
+//            ...
 //            'assets' => []
 //        ],
 //        [
 //            'name' => 'Thor',
-//            'deceased' => false,
-//            'address' => [
-//                'city' => 'Asgard',
-//                'country' => 'Asgard',
-//            ],
+//            ...
 //            'assets' => [
 //                ['type' => 'house', 'cost' => '20'],
 //            ]
