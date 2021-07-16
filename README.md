@@ -8,178 +8,106 @@ composer require cdinopol/data-guard
 
 ## Usage
 ```
-DataGuard::protect(array $data, string $resource, array $conditions);
+DataGuard::protect(array $data, string $resource, array $conditions, $mask (optional));
 ```
 
-## Config
-Override the config by creating `config/dataguard.php`
-```php
-return [
-    'separator'       => ':',
-    'condition_all'   => '*',
-    'array_indicator' => '[]',
-];
+### Data
+- your data array (preferably an associative array)
+
+### Resource
+- string (example format: `'orders[]|order:line_items[]:sku'`)
+- this is the key point of data to be processed.
+- `|` - key split, keys to match on the same level.
+- `:` - key separator, hierarchy of keys to match from root to child.
+- `[]` - array indicator, DataGuard will look inside each of the values instead of directly looking for the next key.
+
+### Conditions
+- Conditions can be formatted into 3 types:
+1. `"*"` - means it will match all from the given resource.
+2. `[[operator, value]]` - this will match the given resource directly to the value.
+3. `[[search_resource, operator, value]]` - instead of matching the given resource directly, you can pass another resource (same formatting as resource) as the first index of condition to match against the operator+value. search_resource will be searched through and matched, but the process point will still be on the given resource.
+
+### Condition Operators
+```
+1. =     : equals
+2. !=    : not equals
+3. in    : in array
+4. !in   : not in array
+5. >     : greater than
+6. <     : less than
+7. regex : Regular Expression; condition value must be a proper expression
 ```
 
-## Condition Operators
-```
-1. =   : equals
-2. !=  : not equals
-3. in  : in array
-4. !in : not in array
-5. >   : greater than
-6. <   : less than
-```
+### Mask
+- any value, optional.
+- will replace the resource value to this instead of removing it.
 
 ## Usage
-#### Basic example
-```php
-use Cdinopol\DataGuard\DataGuard;
-
-$data = ['key1' => 'val1', 'key2' => 'val2'];
-$resource = 'key2';
-$conditions = [['=','val2']];
-
-$protectedData = DataGuard::protect($data, $resource, $conditions);
-
-print_r($protectedData);
-//Result:
-//['key1' => 'val1'];
-```
-
-#### Array of objects (in a form of associative array) example
 ```php
 use Cdinopol\DataGuard\DataGuard;
 
 $data = [
-    'people' => [
-        [
-            'name' => 'Tony',
-            'deceased' => true,
-            'address' => [
-                'city' => 'New York',
-                'country' => 'United States',
-            ],
-            'assets' => [
-                ['type' => 'house', 'cost' => '200'],
-                ['type' => 'car', 'cost' => '10'],
-                ['type' => 'others', 'cost' => '50'],
-            ]
+    'hero' => [
+        'name' => 'Thor',
+        'address' => [
+            'city' => 'Asgard',
+            'country' => 'Asgard',
         ],
-        [
-            'name' => 'Natalia',
-            'deceased' => true,
-            'address' => [
-                'city' => 'Moscow',
-                'country' => 'Russia',
-            ],
-            'assets' => [
-                ['type' => 'bike', 'cost' => '50'],
-                ['type' => 'accessories', 'cost' => '30'],
-            ]
+    ],
+    'villain' => [
+        'name' => 'Loki',
+        'address' => [
+            'city' => 'Asgard',
+            'country' => 'Asgard',
         ],
+    ],
+    'others' => [
         [
-            'name' => 'Thor',
-            'deceased' => false,
+            'name' => 'John',
             'address' => [
                 'city' => 'Asgard',
                 'country' => 'Asgard',
             ],
-            'assets' => [
-                ['type' => 'house', 'cost' => '20'],
-                ['type' => 'others', 'cost' => '500'],
-            ]
+        ],
+        [
+            'name' => 'Doe',
+            'address' => [
+                'city' => 'New York',
+                'country' => 'USA',
+            ],
         ],
     ],
 ];
 
-# -------------------------------------------------------------------------
-# Direct key
-$resource = 'people[]';
-$conditions = [['deceased','=',true]];
+$resource = 'heroes[]|hero|villain|others[]:address';
+$conditions = [['city','=','Asgard']];
 $protectedData = DataGuard::protect($data, $resource, $conditions);
-//Result:
-//[
-//    'people' => [
-//        [
-//            'name' => 'Thor',
-//            ...
-//        ],
-//    ],
-//];
 
-# -------------------------------------------------------------------------
-# Multiple conditions 
-$resource = 'people[]';
-$conditions = [['address:city','=','Asgard'],['deceased', '=', false]];
-$protectedData = DataGuard::protect($data, $resource, $conditions);
-//Result:
-//[
-//        [
-//            'name' => 'Tony',
-//            ...
-//        ],
-//        [
-//            'name' => 'Natalia',
-//            ...
-//        ],
-//    ],
-//];
-
-# -------------------------------------------------------------------------
-# Multi-level condition 
-$resource = 'people[]';
-$conditions = [['address:city','in',['Asgard','New York']]];
-$protectedData = DataGuard::protect($data, $resource, $conditions);
-//Result:
-//[
-//        [
-//            'name' => 'Natalia',
-//            ...
-//        ],
-//    ],
-//];
-
-# -------------------------------------------------------------------------
-# Multi-level resource
-$resource = 'people[]:assets[]';
-$conditions = [['cost','>',20]];
-$protectedData = DataGuard::protect($data, $resource, $conditions);
-//Result:
-//[
-//    'people' => [
-//        [
-//            'name' => 'Tony',
-//            ...
-//            'assets' => [
-//                ['type' => 'car', 'cost' => '10'],
-//            ]
-//        ],
-//        [
-//            'name' => 'Natalia',
-//            ...
-//            'assets' => []
-//        ],
-//        [
-//            'name' => 'Thor',
-//            ...
-//            'assets' => [
-//                ['type' => 'house', 'cost' => '20'],
-//            ]
-//        ],
-//    ],
-//];
-
-# -------------------------------------------------------------------------
-# Condition all
-$resource = 'people[]';
-$conditions = '*';
-$protectedData = DataGuard::protect($data, $resource, $conditions);
+print_r($protectedData);
 # Result:
-//[
-//    'people' => [],
-//];
+[
+    'hero' => [
+        'name' => 'Thor',
+    ],
+    'villain' => [
+        'name' => 'Loki',
+    ],
+    'others' => [
+        [
+            'name' => 'John',
+        ],
+        [
+            'name' => 'Doe',
+            'address' => [
+                'city' => 'New York',
+                'country' => 'USA',
+            ],
+        ]
+    ],
+];
 ```
+
+Please check the [unit test](tests/DataGuardTest.php) for more usage examples.
 
 ## License
 The MIT License (MIT). Please see [License File](LICENSE) for more information.

@@ -7,36 +7,49 @@ use Cdinopol\DataGuard\Exception\InvalidConditionException;
 class DataGuard
 {
     public const SEPARATOR       = ':';
-    public const CONDITION_ALL   = '*';
+    public const RESOURCE_SPLIT  = '|';
+    public const WILDCARD        = '*';
     public const ARRAY_INDICATOR = '[]';
 
     /**
      * @param array $data
      * @param string $resource
      * @param string|array $conditions
+     * @param mixed $mask
      *
      * @return array
      *
      * @throws InvalidConditionException
      */
-    public static function protect(array $data, string $resource, $conditions): array
+    public static function protect(array $data, string $resource, $conditions, $mask = null): array
     {
         $nodes = explode(self::SEPARATOR, $resource);
 
         // Final resource node match against condition
         if (count($nodes) === 1) {
-            if (static::isNodeArray($resource, $data)) {
-                foreach ($data[$resource] as $j => $single) {
-                    if (static::conditions($data[$resource][$j], $conditions)) {
-                        unset($data[$resource][$j]);
+            $splits = explode(self::RESOURCE_SPLIT, $resource);
+            foreach ($splits as $split) {
+                if (static::isNodeArray($split, $data)) {
+                    foreach ($data[$split] as $j => $single) {
+                        if (static::conditions($data[$split][$j], $conditions)) {
+                            if ($mask) {
+                                $data[$split][$j] = $mask;
+                            } else {
+                                unset($data[$split][$j]);
+                            }
+                        }
                     }
-                }
 
-                // Reindex
-                $data[$resource] = array_values($data[$resource]);
-            } elseif (isset($data[$resource])) {
-                if (static::conditions($data[$resource], $conditions)) {
-                    unset($data[$resource]);
+                    // Reindex
+                    $data[$split] = array_values($data[$split]);
+                } elseif (isset($data[$split])) {
+                    if (static::conditions($data[$split], $conditions)) {
+                        if ($mask) {
+                            $data[$split] = $mask;
+                        } else {
+                            unset($data[$split]);
+                        }
+                    }
                 }
             }
 
@@ -47,12 +60,15 @@ class DataGuard
         foreach ($nodes as $k => $node) {
             $levelResource = implode(self::SEPARATOR, array_slice($nodes, $k + 1));
 
-            if (static::isNodeArray($node, $data)) {
-                foreach ($data[$node] as $j => $single) {
-                    $data[$node][$j] = static::protect($data[$node][$j], $levelResource, $conditions);
+            $splits = explode(self::RESOURCE_SPLIT, $node);
+            foreach ($splits as $split) {
+                if (static::isNodeArray($split, $data)) {
+                    foreach ($data[$split] as $j => $single) {
+                        $data[$split][$j] = static::protect($data[$split][$j], $levelResource, $conditions, $mask);
+                    }
+                } elseif (isset($data[$split])) {
+                    $data[$split] = static::protect($data[$split], $levelResource, $conditions, $mask);
                 }
-            } elseif (isset($data[$node])) {
-                $data[$node] = static::protect($data[$node], $levelResource, $conditions);
             }
         }
 
@@ -69,11 +85,11 @@ class DataGuard
      */
     private static function conditions($data, $conditions): bool
     {
-        if (!is_array($conditions) && $conditions !== self::CONDITION_ALL) {
-            throw new InvalidConditionException(sprintf('Conditions must be an array or "%s"', self::CONDITION_ALL));
+        if (!is_array($conditions) && $conditions !== self::WILDCARD) {
+            throw new InvalidConditionException(sprintf('Conditions must be an array or "%s"', self::WILDCARD));
         }
 
-        if ($conditions === self::CONDITION_ALL) {
+        if ($conditions === self::WILDCARD) {
             return true;
         }
 
@@ -154,6 +170,9 @@ class DataGuard
                     break;
                 case '<':
                     $matched = $data[$conditionResource] < $conditionValue;
+                    break;
+                case 'regex':
+                    $matched = (bool) preg_match($conditionValue, $data[$conditionResource]);
                     break;
                 default:
                     throw new InvalidConditionException(sprintf('Unsupported operator: %s', $conditionOperator));

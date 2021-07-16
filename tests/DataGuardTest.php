@@ -5,7 +5,68 @@ use PHPUnit\Framework\TestCase;
 
 class DataGuardTest extends TestCase
 {
-    public function testBasic(): void
+    public function testFullExample(): void
+    {
+        $data = [
+            'hero' => [
+                'name' => 'Thor',
+                'address' => [
+                    'city' => 'Asgard',
+                    'country' => 'Asgard',
+                ],
+            ],
+            'villain' => [
+                'name' => 'Loki',
+                'address' => [
+                    'city' => 'Asgard',
+                    'country' => 'Asgard',
+                ],
+            ],
+            'others' => [
+                [
+                    'name' => 'John',
+                    'address' => [
+                        'city' => 'Asgard',
+                        'country' => 'Asgard',
+                    ],
+                ],
+                [
+                    'name' => 'Doe',
+                    'address' => [
+                        'city' => 'New York',
+                        'country' => 'USA',
+                    ],
+                ]
+            ],
+        ];
+
+        $resource = 'heroes[]|hero|villain|others[]:address';
+        $conditions = [['city','=','Asgard']];
+        $protectedData = DataGuard::protect($data, $resource, $conditions);
+
+        $this->assertEquals([
+            'hero' => [
+                'name' => 'Thor',
+            ],
+            'villain' => [
+                'name' => 'Loki',
+            ],
+            'others' => [
+                [
+                    'name' => 'John',
+                ],
+                [
+                    'name' => 'Doe',
+                    'address' => [
+                        'city' => 'New York',
+                        'country' => 'USA',
+                    ],
+                ]
+            ],
+        ], $protectedData);
+    }
+
+    public function testBasicArray(): void
     {
         $data = ['key1' => 'val1', 'key2' => 'val2'];
         $resource = 'key2';
@@ -20,12 +81,12 @@ class DataGuardTest extends TestCase
      */
     public function testDirectKey(array $data): void
     {
-        $resource = 'people[]';
+        $resource = 'heroes[]';
         $conditions = [['deceased','=',true]];
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
-            'people' => [
+            'heroes' => [
                 [
                     'name' => 'Thor',
                     'deceased' => false,
@@ -47,12 +108,12 @@ class DataGuardTest extends TestCase
      */
     public function testMultipleConditions(array $data): void
     {
-        $resource = 'people[]';
+        $resource = 'heroes[]';
         $conditions = [['address:city','=','Asgard'],['deceased', '=', false]];
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
-            'people' => [
+            'heroes' => [
                 [
                     'name' => 'Tony',
                     'deceased' => true,
@@ -87,12 +148,12 @@ class DataGuardTest extends TestCase
      */
     public function testMultiLevelCondition(array $data): void
     {
-        $resource = 'people[]';
+        $resource = 'heroes[]';
         $conditions = [['address:city','in',['Asgard','New York']]];
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
-            'people' => [
+            'heroes' => [
                 [
                     'name' => 'Natalia',
                     'deceased' => true,
@@ -114,12 +175,12 @@ class DataGuardTest extends TestCase
      */
     public function testMultiLevelResource(array $data): void
     {
-        $resource = 'people[]:assets[]';
+        $resource = 'heroes[]:assets[]';
         $conditions = [['cost','>',20]];
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
-            'people' => [
+            'heroes' => [
                 [
                     'name' => 'Tony',
                     'deceased' => true,
@@ -158,14 +219,67 @@ class DataGuardTest extends TestCase
     /**
      * @dataProvider provider
      */
+    public function testMask(array $data): void
+    {
+        $resource = 'heroes[]:assets[]:cost';
+        $conditions = '*';
+        $mask = 'unknown';
+        $protectedData = DataGuard::protect($data, $resource, $conditions, $mask);
+
+        $this->assertEquals([
+            'heroes' => [
+                [
+                    'name' => 'Tony',
+                    'deceased' => true,
+                    'address' => [
+                        'city' => 'New York',
+                        'country' => 'United States',
+                    ],
+                    'assets' => [
+                        ['type' => 'house', 'cost' => 'unknown'],
+                        ['type' => 'car', 'cost' => 'unknown'],
+                        ['type' => 'others', 'cost' => 'unknown'],
+                    ]
+                ],
+                [
+                    'name' => 'Natalia',
+                    'deceased' => true,
+                    'address' => [
+                        'city' => 'Moscow',
+                        'country' => 'Russia',
+                    ],
+                    'assets' => [
+                        ['type' => 'bike', 'cost' => 'unknown'],
+                        ['type' => 'accessories', 'cost' => 'unknown'],
+                    ]
+                ],
+                [
+                    'name' => 'Thor',
+                    'deceased' => false,
+                    'address' => [
+                        'city' => 'Asgard',
+                        'country' => 'Asgard',
+                    ],
+                    'assets' => [
+                        ['type' => 'house', 'cost' => 'unknown'],
+                        ['type' => 'others', 'cost' => 'unknown'],
+                    ]
+                ],
+            ],
+        ], $protectedData);
+    }
+
+    /**
+     * @dataProvider provider
+     */
     public function testConditionAll(array $data): void
     {
-        $resource = 'people[]';
+        $resource = 'heroes[]';
         $conditions = '*';
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
-            'people' => [],
+            'heroes' => [],
         ], $protectedData);
     }
 
@@ -173,7 +287,7 @@ class DataGuardTest extends TestCase
     {
         return [[
             [
-                'people' => [
+                'heroes' => [
                     [
                         'name' => 'Tony',
                         'deceased' => true,
