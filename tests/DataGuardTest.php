@@ -1,73 +1,101 @@
 <?php
 
-use Cdinopol\DataGuard\DataGuard;
-use PHPUnit\Framework\TestCase;
+namespace Acdphp\DataGuard\Tests;
+
+use Acdphp\DataGuard\DataGuard;
+use Orchestra\Testbench\TestCase;
 
 class DataGuardTest extends TestCase
 {
+    public function testBasicArray(): void
+    {
+        $data = ['key1' => 'val1', 'key2' => 'val2'];
+        $protectedData = app(DataGuard::class)
+            ->hide($data, 'key2', 'val2');
+
+        $this->assertEquals(['key1' => 'val1'], $protectedData);
+    }
+
     public function testFullExample(): void
     {
-        $data = [
+        $data = collect([
             'hero' => [
-                'name' => 'Thor',
+                'name'    => 'Thor',
                 'profile' => [
                     'address' => [
-                        'city' => 'Asgard',
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                 ],
-
             ],
             'villain' => [
-                'name' => 'Loki',
+                'name'    => 'Loki',
                 'profile' => [
                     'address' => [
-                        'city' => 'Asgard',
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                 ],
             ],
             'others' => [
                 [
-                    'name' => 'John',
+                    'name'    => 'John',
                     'profile' => [
                         'address' => [
-                            'city' => 'Asgard',
+                            'city'    => 'Asgard',
                             'country' => 'Asgard',
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Doe',
+                    'name'    => 'Doe',
                     'profile' => [
                         'address' => [
-                            'city' => 'New York',
+                            'city'    => 'New York',
                             'country' => 'USA',
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Carl',
+                    'name'    => 'Carl',
                     'profile' => [
-                        'addresses' => [
+                        'address' => [
                             [
-                                'city' => 'Chicago',
+                                'city'    => 'Chicago',
                                 'country' => 'USA',
                             ],
                             [
-                                'city' => 'Asgard',
+                                'city'    => 'Stockholm',
+                                'country' => 'Asgard',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'name'    => 'Guy',
+                    'profile' => [
+                        'addresses' => [
+                            [
+                                'city'    => 'Chicago',
+                                'country' => 'USA',
+                            ],
+                            [
+                                'city'    => 'Uppsala',
                                 'country' => 'Asgard',
                             ],
                         ],
                     ],
                 ],
             ],
-        ];
+        ]);
 
         // Hides profile if city = Asgard
-        $resource = 'heroes[]|hero|villain|others[]:profile';
-        $conditions = [['address|addresses[]:city', '=', 'Asgard']];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
+        $protectedData = $data->hide(
+            'hero|villain|others[]:profile',
+            'addresses[]|address|address[]:city|country',
+            '=',
+            'Asgard'
+        );
 
         $this->assertEquals([
             'hero' => [
@@ -81,10 +109,10 @@ class DataGuardTest extends TestCase
                     'name' => 'John',
                 ],
                 [
-                    'name' => 'Doe',
+                    'name'    => 'Doe',
                     'profile' => [
                         'address' => [
-                            'city' => 'New York',
+                            'city'    => 'New York',
                             'country' => 'USA',
                         ],
                     ],
@@ -92,271 +120,68 @@ class DataGuardTest extends TestCase
                 [
                     'name' => 'Carl',
                 ],
+                [
+                    'name' => 'Guy',
+                ],
             ],
-        ], $protectedData);
+        ], $protectedData->toArray());
     }
 
-    public function testBasicArray(): void
+    public function testMask(): void
     {
-        $data = ['key1' => 'val1', 'key2' => 'val2'];
-        $resource = 'key2';
-        $conditions = [['=','val2']];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
+        $data = collect(['a' => 'ABC', 'b' => 'DEF']);
 
-        $this->assertEquals(['key1' => 'val1'], $protectedData);
+        $maskedData = $data->mask('a');
+
+        $this->assertEquals(['a' => config('dataguard.mask_with'), 'b' => 'DEF'], $maskedData->toArray());
     }
 
     /**
-     * @dataProvider provider
+     * @dataProvider \Acdphp\DataGuard\Tests\DataProvider::provide()
      */
-    public function testDirectKey(array $data): void
+    public function testMoreExamplesAsArray(array $data, string $resource, array $expectedResult, array $conditions = null): void
     {
-        $resource = 'heroes[]';
-        $conditions = [['deceased','=',true]];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
+        $result = null;
 
-        $this->assertEquals([
-            'heroes' => [
-                [
-                    'name' => 'Thor',
-                    'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
-                        'country' => 'Asgard',
-                    ],
-                    'assets' => [
-                        ['type' => 'house', 'cost' => '20'],
-                        ['type' => 'others', 'cost' => '500'],
-                    ]
-                ],
-            ],
-        ], $protectedData);
+        if (func_num_args() === 4) {
+            $result = app(DataGuard::class)->hide($data, $resource, function (DataGuard $dg) use ($conditions) {
+                foreach ($conditions as $condition) {
+                    $dg->whereResource(...$condition);
+                }
+
+                return $dg;
+            });
+        } else {
+            $result = app(DataGuard::class)->hide($data, $resource);
+        }
+
+        $this->assertEquals($expectedResult, $result);
     }
 
     /**
-     * @dataProvider provider
+     * @dataProvider \Acdphp\DataGuard\Tests\DataProvider::provide()
      */
-    public function testMultipleConditions(array $data): void
+    public function testMoreExamplesAsCollection(array $data, string $resource, array $expectedResult, array $conditions = null): void
     {
-        $resource = 'heroes[]';
-        $conditions = [['address:city','=','Asgard'],['deceased', '=', false]];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
+        $data = collect($data);
 
-        $this->assertEquals([
-            'heroes' => [
-                [
-                    'name' => 'Tony',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
-                        'country' => 'United States',
-                    ],
-                    'assets' => [
-                        ['type' => 'house', 'cost' => '200'],
-                        ['type' => 'car', 'cost' => '10'],
-                        ['type' => 'others', 'cost' => '50'],
-                    ]
-                ],
-                [
-                    'name' => 'Natalia',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
-                        'country' => 'Russia',
-                    ],
-                    'assets' => [
-                        ['type' => 'bike', 'cost' => '50'],
-                        ['type' => 'accessories', 'cost' => '30'],
-                    ]
-                ],
-            ],
-        ], $protectedData);
+        if (func_num_args() === 4) {
+            $guarded = $data->hide($resource, function (DataGuard $dg) use ($conditions) {
+                foreach ($conditions as $condition) {
+                    $dg->whereResource(...$condition);
+                }
+
+                return $dg;
+            });
+        } else {
+            $guarded = $data->hide($resource);
+        }
+
+        $this->assertEquals($expectedResult, $guarded->toArray());
     }
 
-    /**
-     * @dataProvider provider
-     */
-    public function testMultiLevelCondition(array $data): void
+    protected function getPackageProviders($app)
     {
-        $resource = 'heroes[]';
-        $conditions = [['address:city','in',['Asgard','New York']]];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
-
-        $this->assertEquals([
-            'heroes' => [
-                [
-                    'name' => 'Natalia',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
-                        'country' => 'Russia',
-                    ],
-                    'assets' => [
-                        ['type' => 'bike', 'cost' => '50'],
-                        ['type' => 'accessories', 'cost' => '30'],
-                    ]
-                ],
-            ],
-        ], $protectedData);
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testMultiLevelResource(array $data): void
-    {
-        $resource = 'heroes[]:assets[]';
-        $conditions = [['cost','>',20]];
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
-
-        $this->assertEquals([
-            'heroes' => [
-                [
-                    'name' => 'Tony',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
-                        'country' => 'United States',
-                    ],
-                    'assets' => [
-                        ['type' => 'car', 'cost' => '10'],
-                    ]
-                ],
-                [
-                    'name' => 'Natalia',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
-                        'country' => 'Russia',
-                    ],
-                    'assets' => []
-                ],
-                [
-                    'name' => 'Thor',
-                    'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
-                        'country' => 'Asgard',
-                    ],
-                    'assets' => [
-                        ['type' => 'house', 'cost' => '20'],
-                    ]
-                ],
-            ],
-        ], $protectedData);
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testMask(array $data): void
-    {
-        $resource = 'heroes[]:assets[]:cost';
-        $conditions = '*';
-        $mask = 'unknown';
-        $protectedData = DataGuard::protect($data, $resource, $conditions, $mask);
-
-        $this->assertEquals([
-            'heroes' => [
-                [
-                    'name' => 'Tony',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
-                        'country' => 'United States',
-                    ],
-                    'assets' => [
-                        ['type' => 'house', 'cost' => 'unknown'],
-                        ['type' => 'car', 'cost' => 'unknown'],
-                        ['type' => 'others', 'cost' => 'unknown'],
-                    ]
-                ],
-                [
-                    'name' => 'Natalia',
-                    'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
-                        'country' => 'Russia',
-                    ],
-                    'assets' => [
-                        ['type' => 'bike', 'cost' => 'unknown'],
-                        ['type' => 'accessories', 'cost' => 'unknown'],
-                    ]
-                ],
-                [
-                    'name' => 'Thor',
-                    'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
-                        'country' => 'Asgard',
-                    ],
-                    'assets' => [
-                        ['type' => 'house', 'cost' => 'unknown'],
-                        ['type' => 'others', 'cost' => 'unknown'],
-                    ]
-                ],
-            ],
-        ], $protectedData);
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testConditionAll(array $data): void
-    {
-        $resource = 'heroes[]';
-        $conditions = '*';
-        $protectedData = DataGuard::protect($data, $resource, $conditions);
-
-        $this->assertEquals([
-            'heroes' => [],
-        ], $protectedData);
-    }
-
-    public function provider(): array
-    {
-        return [[
-            [
-                'heroes' => [
-                    [
-                        'name' => 'Tony',
-                        'deceased' => true,
-                        'address' => [
-                            'city' => 'New York',
-                            'country' => 'United States',
-                        ],
-                        'assets' => [
-                            ['type' => 'house', 'cost' => '200'],
-                            ['type' => 'car', 'cost' => '10'],
-                            ['type' => 'others', 'cost' => '50'],
-                        ]
-                    ],
-                    [
-                        'name' => 'Natalia',
-                        'deceased' => true,
-                        'address' => [
-                            'city' => 'Moscow',
-                            'country' => 'Russia',
-                        ],
-                        'assets' => [
-                            ['type' => 'bike', 'cost' => '50'],
-                            ['type' => 'accessories', 'cost' => '30'],
-                        ]
-                    ],
-                    [
-                        'name' => 'Thor',
-                        'deceased' => false,
-                        'address' => [
-                            'city' => 'Asgard',
-                            'country' => 'Asgard',
-                        ],
-                        'assets' => [
-                            ['type' => 'house', 'cost' => '20'],
-                            ['type' => 'others', 'cost' => '500'],
-                        ]
-                    ],
-                ],
-            ],
-        ]];
+        return ['Acdphp\DataGuard\DataGuardServiceProvider'];
     }
 }

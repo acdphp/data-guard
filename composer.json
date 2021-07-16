@@ -1,5 +1,5 @@
 {
-    "name": "cdinopol/data-guard",
+    "name": "acdphp/data-guard",
     "description": "Filter out data from an array of a given conditions",
     "type": "library",
     "license": "MIT",
@@ -11,15 +11,36 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.3 || ^8.0"
+        "php": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "phpunit/phpunit": "^9.6",
+        "friendsofphp/php-cs-fixer": "^3.34",
+        "phpstan/phpstan": "^1.10",
+        "ekino/phpstan-banned-code": "^1.0",
+        "orchestra/testbench": "^6.36",
+        "nunomaduro/larastan": "^1.0"
     },
     "autoload": {
         "psr-4": {
-            "Cdinopol\\DataGuard\\": "src/"
+            "Acdphp\\DataGuard\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Acdphp\\DataGuard\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Acdphp\\DataGuard\\DataGuardServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
         }
     }
 }
