@@ -24,7 +24,7 @@ DataGuard::protect(array $data, string $resource, array $conditions, $mask (opti
 ### Conditions
 - Conditions can be formatted into 3 types:
 1. `"*"` - means it will match all from the given resource.
-2. `[[operator, value]]` - this will match the given resource directly to the value.
+2. `[[operator, value]]` - this will match the given resource directly to the search value.
 3. `[[search_resource, operator, value]]` - instead of matching the given resource directly, you can pass another resource (same formatting as resource) as the first index of condition to match against the operator+value. search_resource will be searched through and matched, but the process point will still be on the given resource.
 
 ### Condition Operators
