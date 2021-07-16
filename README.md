@@ -26,6 +26,7 @@ DataGuard::protect(array $data, string $resource, array $conditions, $mask (opti
 1. `"*"` - means it will match all from the given resource.
 2. `[[operator, value]]` - this will match the given resource directly to the search value.
 3. `[[search_resource, operator, value]]` - instead of matching the given resource directly, you can pass another resource (same formatting as resource) as the first index of condition to match against the operator+value. search_resource will be searched through and matched, but the process point will still be on the given resource.
+- All conditions in an array must match to be considered positive. Tip: Running OR condition means running DataGuard with another set conditions
 
 ### Condition Operators
 ```
@@ -49,38 +50,63 @@ use Cdinopol\DataGuard\DataGuard;
 $data = [
     'hero' => [
         'name' => 'Thor',
-        'address' => [
-            'city' => 'Asgard',
-            'country' => 'Asgard',
-        ],
-    ],
-    'villain' => [
-        'name' => 'Loki',
-        'address' => [
-            'city' => 'Asgard',
-            'country' => 'Asgard',
-        ],
-    ],
-    'others' => [
-        [
-            'name' => 'John',
+        'profile' => [
             'address' => [
                 'city' => 'Asgard',
                 'country' => 'Asgard',
             ],
         ],
+
+    ],
+    'villain' => [
+        'name' => 'Loki',
+        'profile' => [
+            'address' => [
+                'city' => 'Asgard',
+                'country' => 'Asgard',
+            ],
+        ],
+    ],
+    'others' => [
+        [
+            'name' => 'John',
+            'profile' => [
+                'address' => [
+                    'city' => 'Asgard',
+                    'country' => 'Asgard',
+                ],
+            ],
+        ],
         [
             'name' => 'Doe',
-            'address' => [
-                'city' => 'New York',
-                'country' => 'USA',
+            'profile' => [
+                'address' => [
+                    'city' => 'New York',
+                    'country' => 'USA',
+                ],
+            ],
+        ],
+        [
+            'name' => 'Carl',
+            'profile' => [
+                'addresses' => [
+                    [
+                        'city' => 'Chicago',
+                        'country' => 'USA',
+                    ],
+                    [
+                        'city' => 'Asgard',
+                        'country' => 'Asgard',
+                    ],
+                ],
             ],
         ],
     ],
 ];
 
-$resource = 'heroes[]|hero|villain|others[]:address';
-$conditions = [['city','=','Asgard']];
+// Hides profile if city = Asgard
+$resource = 'heroes[]|hero|villain|others[]:profile';
+$conditions = [['address|addresses[]:city', '=', 'Asgard']];
 $protectedData = DataGuard::protect($data, $resource, $conditions);
 
 print_r($protectedData);
@@ -98,11 +124,16 @@ print_r($protectedData);
         ],
         [
             'name' => 'Doe',
-            'address' => [
-                'city' => 'New York',
-                'country' => 'USA',
+            'profile' => [
+                'address' => [
+                    'city' => 'New York',
+                    'country' => 'USA',
+                ],
             ],
-        ]
+        ],
+        [
+            'name' => 'Carl',
+        ],
     ],
 ];
 ```

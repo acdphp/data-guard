@@ -10,38 +10,63 @@ class DataGuardTest extends TestCase
         $data = [
             'hero' => [
                 'name' => 'Thor',
-                'address' => [
-                    'city' => 'Asgard',
-                    'country' => 'Asgard',
-                ],
-            ],
-            'villain' => [
-                'name' => 'Loki',
-                'address' => [
-                    'city' => 'Asgard',
-                    'country' => 'Asgard',
-                ],
-            ],
-            'others' => [
-                [
-                    'name' => 'John',
+                'profile' => [
                     'address' => [
                         'city' => 'Asgard',
                         'country' => 'Asgard',
                     ],
                 ],
+
+            ],
+            'villain' => [
+                'name' => 'Loki',
+                'profile' => [
+                    'address' => [
+                        'city' => 'Asgard',
+                        'country' => 'Asgard',
+                    ],
+                ],
+            ],
+            'others' => [
+                [
+                    'name' => 'John',
+                    'profile' => [
+                        'address' => [
+                            'city' => 'Asgard',
+                            'country' => 'Asgard',
+                        ],
+                    ],
+                ],
                 [
                     'name' => 'Doe',
-                    'address' => [
-                        'city' => 'New York',
-                        'country' => 'USA',
+                    'profile' => [
+                        'address' => [
+                            'city' => 'New York',
+                            'country' => 'USA',
+                        ],
                     ],
-                ]
+                ],
+                [
+                    'name' => 'Carl',
+                    'profile' => [
+                        'addresses' => [
+                            [
+                                'city' => 'Chicago',
+                                'country' => 'USA',
+                            ],
+                            [
+                                'city' => 'Asgard',
+                                'country' => 'Asgard',
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ];
 
-        $resource = 'heroes[]|hero|villain|others[]:address';
-        $conditions = [['city','=','Asgard']];
+        // Hides profile if city = Asgard
+        $resource = 'heroes[]|hero|villain|others[]:profile';
+        $conditions = [['address|addresses[]:city', '=', 'Asgard']];
         $protectedData = DataGuard::protect($data, $resource, $conditions);
 
         $this->assertEquals([
@@ -57,11 +82,16 @@ class DataGuardTest extends TestCase
                 ],
                 [
                     'name' => 'Doe',
-                    'address' => [
-                        'city' => 'New York',
-                        'country' => 'USA',
+                    'profile' => [
+                        'address' => [
+                            'city' => 'New York',
+                            'country' => 'USA',
+                        ],
                     ],
-                ]
+                ],
+                [
+                    'name' => 'Carl',
+                ],
             ],
         ], $protectedData);
     }

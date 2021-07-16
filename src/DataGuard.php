@@ -8,7 +8,7 @@ class DataGuard
 {
     public const SEPARATOR       = ':';
     public const RESOURCE_SPLIT  = '|';
-    public const WILDCARD        = '*';
+    public const MATCH_ALL       = '*';
     public const ARRAY_INDICATOR = '[]';
 
     /**
@@ -85,23 +85,28 @@ class DataGuard
      */
     private static function conditions($data, $conditions): bool
     {
-        if (!is_array($conditions) && $conditions !== self::WILDCARD) {
+        // Validate conditions format
+        if (!is_array($conditions) && $conditions !== self::MATCH_ALL) {
             throw new InvalidConditionException(
-                sprintf('Conditions must be an array or "%s"', self::WILDCARD)
+                sprintf('Conditions must be an array or "%s"', self::MATCH_ALL)
             );
         }
-
-        if ($conditions === self::WILDCARD) {
+        
+        // Always return true on MATCH_ALL
+        if ($conditions === self::MATCH_ALL) {
             return true;
         }
 
+        // Match every single condition if array of conditions is provided
         foreach ($conditions as $condition) {
+            // Validate individual condition format
             if (!is_array($condition)) {
                 throw new InvalidConditionException(
                     'Conditions must be an array of array condition'
                 );
             }
 
+            // Validate condition segments, must be either 2 or 3
             $conditionCount = count($condition);
             if ($conditionCount < 2 || $conditionCount > 3) {
                 throw new InvalidConditionException(
@@ -109,12 +114,13 @@ class DataGuard
                 );
             }
 
-            // Direct search from resource
+            // Match against resource if 2 segment condition is provided
             if ($conditionCount === 2) {
                 $data = ['search' => $data];
                 array_unshift($condition, 'search');
             }
 
+            // Immediately return false if one of condition is not true
             if (!static::condition($data, ...$condition)) {
                 return false;
             }
@@ -140,51 +146,53 @@ class DataGuard
 
         // Final condition node
         if (count($nodes) === 1) {
-            // Condition key not found in the resource data
-            if (!isset($data[$conditionResource])) {
-                throw new InvalidConditionException(
-                    sprintf('%s: condition key not found in the resource data', $conditionResource)
-                );
-            }
+            $splits = explode(self::RESOURCE_SPLIT, $conditionResource);
+            foreach ($splits as $split) {
+                // Ignore if Condition key not is found in the resource data
+                if (!isset($data[$split])) {
+                    continue;
+                }
 
-            switch ($conditionOperator) {
-                case '=':
-                    $matched = $data[$conditionResource] == $conditionValue;
-                    break;
-                case '!=':
-                    $matched = $data[$conditionResource] != $conditionValue;
-                    break;
-                case 'in':
-                    if (!is_array($conditionValue)) {
+                // Operator evaluation
+                switch ($conditionOperator) {
+                    case '=':
+                        $matched = $data[$split] == $conditionValue;
+                        break;
+                    case '!=':
+                        $matched = $data[$split] != $conditionValue;
+                        break;
+                    case 'in':
+                        if (!is_array($conditionValue)) {
+                            throw new InvalidConditionException(
+                                sprintf('%s: condition value must be an array', $conditionValue)
+                            );
+                        }
+
+                        $matched = in_array($data[$split], $conditionValue, false);
+                        break;
+                    case '!in':
+                        if (!is_array($conditionValue)) {
+                            throw new InvalidConditionException(
+                                sprintf('%s: condition value must be an array', $conditionValue)
+                            );
+                        }
+
+                        $matched = !in_array($data[$split], $conditionValue, false);
+                        break;
+                    case '>':
+                        $matched = $data[$split] > $conditionValue;
+                        break;
+                    case '<':
+                        $matched = $data[$split] < $conditionValue;
+                        break;
+                    case 'regex':
+                        $matched = (bool)preg_match($conditionValue, $data[$split]);
+                        break;
+                    default:
                         throw new InvalidConditionException(
-                            sprintf('%s: condition value must be an array', $conditionValue)
+                            sprintf('Unsupported operator: %s', $conditionOperator)
                         );
-                    }
-
-                    $matched = in_array($data[$conditionResource], $conditionValue, false);
-                    break;
-                case '!in':
-                    if (!is_array($conditionValue)) {
-                        throw new InvalidConditionException(
-                            sprintf('%s: condition value must be an array', $conditionValue)
-                        );
-                    }
-
-                    $matched = !in_array($data[$conditionResource], $conditionValue, false);
-                    break;
-                case '>':
-                    $matched = $data[$conditionResource] > $conditionValue;
-                    break;
-                case '<':
-                    $matched = $data[$conditionResource] < $conditionValue;
-                    break;
-                case 'regex':
-                    $matched = (bool) preg_match($conditionValue, $data[$conditionResource]);
-                    break;
-                default:
-                    throw new InvalidConditionException(
-                        sprintf('Unsupported operator: %s', $conditionOperator)
-                    );
+                }
             }
 
             return $matched;
@@ -194,14 +202,17 @@ class DataGuard
         foreach ($nodes as $k => $node) {
             $levelResource = implode(self::SEPARATOR, array_slice($nodes, $k + 1));
 
-            if (static::isNodeArray($node, $data)) {
-                foreach ($data[$node] as $j => $single) {
-                    if (static::condition($data[$node][$j], $levelResource, $conditionOperator, $conditionValue)) {
-                        return true;
+            $splits = explode(self::RESOURCE_SPLIT, $node);
+            foreach ($splits as $split) {
+                if (static::isNodeArray($split, $data)) {
+                    foreach ($data[$split] as $j => $single) {
+                        if (static::condition($data[$split][$j], $levelResource, $conditionOperator, $conditionValue)) {
+                            return true;
+                        }
                     }
+                } elseif (isset($data[$split])) {
+                    return static::condition($data[$split], $levelResource, $conditionOperator, $conditionValue);
                 }
-            } elseif (isset($data[$node])) {
-                return static::condition($data[$node], $levelResource, $conditionOperator, $conditionValue);
             }
         }
 
