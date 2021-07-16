@@ -16,7 +16,8 @@ class DataGuardServiceProvider extends ServiceProvider
         $this->app->singleton('dataGuard', DataGuard::class);
 
         $this->mergeConfigFrom(
-            __DIR__.'/../config/dataguard.php', 'dataguard'
+            __DIR__.'/../config/dataguard.php',
+            'dataguard'
         );
     }
 }

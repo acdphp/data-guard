@@ -86,7 +86,9 @@ class DataGuard
     private static function conditions($data, $conditions): bool
     {
         if (!is_array($conditions) && $conditions !== self::WILDCARD) {
-            throw new InvalidConditionException(sprintf('Conditions must be an array or "%s"', self::WILDCARD));
+            throw new InvalidConditionException(
+                sprintf('Conditions must be an array or "%s"', self::WILDCARD)
+            );
         }
 
         if ($conditions === self::WILDCARD) {
@@ -96,13 +98,15 @@ class DataGuard
         foreach ($conditions as $condition) {
             if (!is_array($condition)) {
                 throw new InvalidConditionException(
-                    'Conditions must be an array of array condition');
+                    'Conditions must be an array of array condition'
+                );
             }
 
             $conditionCount = count($condition);
             if ($conditionCount < 2 || $conditionCount > 3) {
                 throw new InvalidConditionException(
-                'Condition must consist of 2 or 3 segments: [1] resource key condition (optional), [2] operator, [3] value');
+                    'Condition must consist of 2 or 3 segments: [1] resource key condition (optional), [2] operator, [3] value'
+                );
             }
 
             // Direct search from resource
@@ -139,7 +143,8 @@ class DataGuard
             // Condition key not found in the resource data
             if (!isset($data[$conditionResource])) {
                 throw new InvalidConditionException(
-                    sprintf('%s: condition key not found in the resource data', $conditionResource));
+                    sprintf('%s: condition key not found in the resource data', $conditionResource)
+                );
             }
 
             switch ($conditionOperator) {
@@ -152,7 +157,8 @@ class DataGuard
                 case 'in':
                     if (!is_array($conditionValue)) {
                         throw new InvalidConditionException(
-                            sprintf('%s: condition value must be an array', $conditionValue));
+                            sprintf('%s: condition value must be an array', $conditionValue)
+                        );
                     }
 
                     $matched = in_array($data[$conditionResource], $conditionValue, false);
@@ -160,7 +166,8 @@ class DataGuard
                 case '!in':
                     if (!is_array($conditionValue)) {
                         throw new InvalidConditionException(
-                            sprintf('%s: condition value must be an array', $conditionValue));
+                            sprintf('%s: condition value must be an array', $conditionValue)
+                        );
                     }
 
                     $matched = !in_array($data[$conditionResource], $conditionValue, false);
@@ -175,7 +182,9 @@ class DataGuard
                     $matched = (bool) preg_match($conditionValue, $data[$conditionResource]);
                     break;
                 default:
-                    throw new InvalidConditionException(sprintf('Unsupported operator: %s', $conditionOperator));
+                    throw new InvalidConditionException(
+                        sprintf('Unsupported operator: %s', $conditionOperator)
+                    );
             }
 
             return $matched;
