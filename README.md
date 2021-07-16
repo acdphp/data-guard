@@ -1,6 +1,7 @@
 # data-guard
 ![](https://github.com/cdinopol/data-guard/workflows/Tests/badge.svg?branch=master)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/cdinopol/data-guard.svg?style=flat-square)](https://packagist.org/packages/cdinopol/data-guard)
+[![Latest Stable Version](http://poser.pugx.org/cdinopol/data-guard/v)](https://packagist.org/packages/cdinopol/data-guard)
+[![License](http://poser.pugx.org/cdinopol/data-guard/license)](https://packagist.org/packages/cdinopol/data-guard)
 
 Filter out data from an array of a given conditions
 
