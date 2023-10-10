@@ -2,6 +2,7 @@
 
 namespace Acdphp\DataGuard\Traits;
 
+use Acdphp\DataGuard\DataGuard;
 use Acdphp\DataGuard\Exception\InvalidConditionException;
 use Acdphp\DataGuard\Helpers\Node;
 
@@ -11,6 +12,12 @@ trait EvaluatesValues
 
     protected array $orConditions = [];
 
+    /**
+     * @param  mixed  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
+     * @return DataGuard
+     */
     public function whereResource($key = null, $operator = null, $value = null): self
     {
         $this->andConditions[] = $this->whereBase(...func_get_args());
@@ -18,6 +25,12 @@ trait EvaluatesValues
         return $this;
     }
 
+    /**
+     * @param  mixed  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
+     * @return DataGuard
+     */
     public function orWhereResource($key = null, $operator = null, $value = null): self
     {
         $this->orConditions[] = $this->whereBase(...func_get_args());
@@ -50,6 +63,11 @@ trait EvaluatesValues
         return true;
     }
 
+    /**
+     * @param  mixed  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
+     */
     protected function whereBase($key = null, $operator = null, $value = null): array
     {
         if (func_num_args() === 0) {
@@ -91,6 +109,9 @@ trait EvaluatesValues
     }
 
     /**
+     * @param  mixed  $data
+     * @param  mixed  $conditionValue
+     *
      * @throws InvalidConditionException
      */
     protected function matchEach(
@@ -144,6 +165,13 @@ trait EvaluatesValues
         return false;
     }
 
+    /**
+     * @param  mixed  $dataNode
+     * @param  mixed  $conditionOperator
+     * @param  mixed  $conditionValue
+     *
+     * @throws InvalidConditionException
+     */
     protected function matchFinalNode($dataNode, $conditionOperator, $conditionValue): bool
     {
         // Operator evaluation

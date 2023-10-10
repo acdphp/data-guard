@@ -43,9 +43,14 @@ class DataGuardServiceProvider extends ServiceProvider
             string $operator = null,
             $value = null
         ) {
+            /**
+             * @var Collection $collection
+             */
+            $collection = $this;
+
             return collect(
                 app(DataGuard::class)
-                    ->setData($this->toArray())
+                    ->setData($collection->toArray())
                     ->hide(...func_get_args())
                     ->getResult()
             );
@@ -57,9 +62,14 @@ class DataGuardServiceProvider extends ServiceProvider
             string $operator = null,
             $value = null
         ) {
+            /**
+             * @var Collection $collection
+             */
+            $collection = $this;
+
             return collect(
                 app(DataGuard::class)
-                    ->setData($this->toArray())
+                    ->setData($collection->toArray())
                     ->mask(...func_get_args())
                     ->getResult()
             );

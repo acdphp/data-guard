@@ -32,7 +32,7 @@ class DataGuard
         $this->maskWith = $maskWith;
     }
 
-    public function setData($data): self
+    public function setData(array $data): self
     {
         $this->data = $data;
 
@@ -86,7 +86,7 @@ class DataGuard
         // Final resource node match against condition
         if (count($nodes) === 1) {
             $node = current($nodes);
-            $splits = explode($this->splitter, $node);
+            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
 
             foreach ($splits as $split) {
                 if (Node::isArray($split, $data, $this->arrayIndicator)) {
@@ -107,7 +107,7 @@ class DataGuard
         // Each of parent resource nodes
         foreach ($nodes as $i => $node) {
             $levelResource = implode($this->separator, array_slice($nodes, $i + 1));
-            $splits = explode($this->splitter, $node);
+            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
 
             foreach ($splits as $split) {
                 if (Node::isArray($split, $data, $this->arrayIndicator)) {
@@ -124,9 +124,11 @@ class DataGuard
     }
 
     /**
+     * @param  string|int  $key
+     *
      * @throws InvalidConditionException
      */
-    protected function process(array &$data, string $key): void
+    protected function process(array &$data, $key): void
     {
         if ($this->match($data[$key])) {
             if ($this->mask) {
