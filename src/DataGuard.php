@@ -11,11 +11,17 @@ class DataGuard
     use EvaluatesValues;
 
     protected string $separator;
+
     protected string $splitter;
+
     protected string $arrayIndicator;
+
     protected string $maskWith;
+
     protected array $data;
+
     protected string $resource;
+
     protected bool $mask = false;
 
     public function __construct(string $separator, string $splitter, string $arrayIndicator, string $maskWith)
@@ -25,11 +31,11 @@ class DataGuard
         $this->arrayIndicator = $arrayIndicator;
         $this->maskWith = $maskWith;
     }
-    
+
     public function setData($data): self
     {
         $this->data = $data;
-        
+
         return $this;
     }
 
@@ -39,17 +45,13 @@ class DataGuard
     }
 
     /**
-     * @param string $resource
-     * @param ?(callable(self): self)|string $key
-     * @param ?string $operator
-     * @param mixed $value
-     *
-     * @return self
+     * @param  (callable(self): self)|string|null  $key
+     * @param  mixed  $value
      */
     public function hide(
         string $resource,
         $key = null,
-        ?string $operator = null,
+        string $operator = null,
         $value = null
     ): self {
         $this->resource = $resource;
@@ -59,24 +61,22 @@ class DataGuard
         return $this;
     }
 
+    /**
+     * @param  (callable(self): self)|string|null  $key
+     * @param  mixed  $value
+     */
     public function mask(
         string $resource,
         $key = null,
-        ?string $operator = null,
+        string $operator = null,
         $value = null
-    ): self
-    {
+    ): self {
         $this->mask = true;
 
         return $this->hide(...func_get_args());
     }
 
     /**
-     * @param array $data
-     * @param string $resource
-     *
-     * @return array
-     *
      * @throws InvalidConditionException
      */
     protected function protect(array $data, string $resource): array
@@ -100,7 +100,6 @@ class DataGuard
                     $this->process($data, $split);
                 }
             }
-
 
             return $data;
         }

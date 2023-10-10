@@ -34,4 +34,4 @@ jobs:
       - name: Install dependencies
         run: composer install -n
       - name: Run tests
-        run: vendor/bin/phpunit tests
+        run: vendor/bin/test tests

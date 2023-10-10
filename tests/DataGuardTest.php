@@ -1,6 +1,6 @@
 <?php
 
-namespace  Acdphp\DataGuard\Tests;
+namespace Acdphp\DataGuard\Tests;
 
 use Acdphp\DataGuard\DataGuard;
 use Orchestra\Testbench\TestCase;
@@ -163,7 +163,6 @@ class DataGuardTest extends TestCase
         } else {
             $dg->hide($resource);
         }
-
 
         $this->assertEquals($expectedResult, $dg->getResult());
     }

@@ -28,7 +28,7 @@ class DataGuardServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/dataguard.php' => config_path('dataguard.php')
+                __DIR__.'/../config/dataguard.php' => config_path('dataguard.php'),
             ], 'dataguard-config');
         }
 
@@ -40,7 +40,7 @@ class DataGuardServiceProvider extends ServiceProvider
         Collection::macro('hide', function (
             string $resource,
             $key = null,
-            ?string $operator = null,
+            string $operator = null,
             $value = null
         ) {
             return collect(
@@ -54,7 +54,7 @@ class DataGuardServiceProvider extends ServiceProvider
         Collection::macro('mask', function (
             string $resource,
             $key = null,
-            ?string $operator = null,
+            string $operator = null,
             $value = null
         ) {
             return collect(

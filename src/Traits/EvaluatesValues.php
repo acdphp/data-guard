@@ -8,6 +8,7 @@ use Acdphp\DataGuard\Helpers\Node;
 trait EvaluatesValues
 {
     protected array $andConditions = [];
+
     protected array $orConditions = [];
 
     public function whereResource($key = null, $operator = null, $value = null): self
@@ -25,9 +26,8 @@ trait EvaluatesValues
     }
 
     /**
-     * @param mixed $data
+     * @param  mixed  $data
      *
-     * @return bool
      * @throws InvalidConditionException
      */
     protected function match($data): bool
@@ -73,15 +73,12 @@ trait EvaluatesValues
     }
 
     /**
-     * @param ?(callable(self): self)|string $key
-     * @param ?string $operator
-     * @param mixed $value
-     *
-     * @return void
+     * @param  (callable(self): self)|string|null  $key
+     * @param  mixed  $value
      */
     protected function setConditions(
         $key = null,
-        ?string $operator = null,
+        string $operator = null,
         $value = null
     ): void {
         if (! is_string($key) && is_callable($key)) {
@@ -156,7 +153,7 @@ trait EvaluatesValues
             case '!=':
                 return $dataNode !== $conditionValue;
             case 'in':
-                if (!is_array($conditionValue)) {
+                if (! is_array($conditionValue)) {
                     throw new InvalidConditionException(
                         sprintf('%s: condition value must be an array', $conditionValue)
                     );
@@ -164,13 +161,13 @@ trait EvaluatesValues
 
                 return in_array($dataNode, $conditionValue, false);
             case '!in':
-                if (!is_array($conditionValue)) {
+                if (! is_array($conditionValue)) {
                     throw new InvalidConditionException(
                         sprintf('%s: condition value must be an array', $conditionValue)
                     );
                 }
 
-                return !in_array($dataNode, $conditionValue, false);
+                return ! in_array($dataNode, $conditionValue, false);
             case '>':
                 return $dataNode > $conditionValue;
             case '<':

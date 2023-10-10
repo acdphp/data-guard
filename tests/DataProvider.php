@@ -22,20 +22,20 @@ class DataProvider
                 static::nestedArray(),
                 'heroes[]',
                 static::multiLevelConditionResult(),
-                [['address:city', 'in', ['Asgard','New York']]]
+                [['address:city', 'in', ['Asgard', 'New York']]],
             ],
             'multiple-conditions' => [
                 static::nestedArray(),
                 'heroes[]',
                 static::multiConditionsResult(),
-                [['address:city', '=', 'Asgard'], ['deceased', '=', false]]
+                [['address:city', '=', 'Asgard'], ['deceased', '=', false]],
             ],
             'direct-key' => [
                 static::nestedArray(),
                 'heroes[]',
                 static::directKeyResult(),
                 [['deceased', '=', true]],
-            ]
+            ],
         ];
     }
 
@@ -54,7 +54,7 @@ class DataProvider
                         ['type' => 'house', 'cost' => '200'],
                         ['type' => 'car', 'cost' => '10'],
                         ['type' => 'others', 'cost' => '50'],
-                    ]
+                    ],
                 ],
                 [
                     'name' => 'Natalia',
@@ -66,7 +66,7 @@ class DataProvider
                     'assets' => [
                         ['type' => 'bike', 'cost' => '50'],
                         ['type' => 'accessories', 'cost' => '30'],
-                    ]
+                    ],
                 ],
                 [
                     'name' => 'Thor',
@@ -78,7 +78,7 @@ class DataProvider
                     'assets' => [
                         ['type' => 'house', 'cost' => '20'],
                         ['type' => 'others', 'cost' => '500'],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -97,7 +97,7 @@ class DataProvider
                     ],
                     'assets' => [
                         ['type' => 'car', 'cost' => '10'],
-                    ]
+                    ],
                 ],
                 [
                     'name' => 'Natalia',
@@ -106,7 +106,7 @@ class DataProvider
                         'city' => 'Moscow',
                         'country' => 'Russia',
                     ],
-                    'assets' => []
+                    'assets' => [],
                 ],
                 [
                     'name' => 'Thor',
@@ -117,7 +117,7 @@ class DataProvider
                     ],
                     'assets' => [
                         ['type' => 'house', 'cost' => '20'],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -137,7 +137,7 @@ class DataProvider
                     'assets' => [
                         ['type' => 'bike', 'cost' => '50'],
                         ['type' => 'accessories', 'cost' => '30'],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -158,7 +158,7 @@ class DataProvider
                         ['type' => 'house', 'cost' => '200'],
                         ['type' => 'car', 'cost' => '10'],
                         ['type' => 'others', 'cost' => '50'],
-                    ]
+                    ],
                 ],
                 [
                     'name' => 'Natalia',
@@ -170,7 +170,7 @@ class DataProvider
                     'assets' => [
                         ['type' => 'bike', 'cost' => '50'],
                         ['type' => 'accessories', 'cost' => '30'],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -190,7 +190,7 @@ class DataProvider
                     'assets' => [
                         ['type' => 'house', 'cost' => '20'],
                         ['type' => 'others', 'cost' => '500'],
-                    ]
+                    ],
                 ],
             ],
         ];
