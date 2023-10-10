@@ -1,6 +1,6 @@
 <?php
 
-namespace Cdinopol\DataGuard\Exception;
+namespace Acdphp\DataGuard\Exception;
 
 use Exception;
 
