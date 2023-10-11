@@ -11,14 +11,6 @@ class DataGuard
     use EvaluatesValues;
     use NodeHelper;
 
-    protected string $separator;
-
-    protected string $splitter;
-
-    protected string $arrayIndicator;
-
-    protected string $maskWith;
-
     protected array $data;
 
     protected string $resource;
@@ -26,15 +18,11 @@ class DataGuard
     protected bool $mask = false;
 
     public function __construct(
-        string $separator = ':',
-        string $splitter = '|',
-        string $arrayIndicator = '[]',
-        string $maskWith = '###'
+        protected string $separator = ':',
+        protected string $splitter = '|',
+        protected string $arrayIndicator = '[]',
+        protected string $maskWith = '###'
     ) {
-        $this->separator = $separator;
-        $this->splitter = $splitter;
-        $this->arrayIndicator = $arrayIndicator;
-        $this->maskWith = $maskWith;
     }
 
     /**
@@ -43,15 +31,17 @@ class DataGuard
      * @param (callable(self): self)|string|null $key
      * @param string|null $operator
      * @param mixed $value
+     *
      * @return array
+     *
      * @throws InvalidConditionException
      */
     public function hide(
         array $data,
         string $resource,
-        $key = null,
+        callable|string|null $key = null,
         string $operator = null,
-        $value = null
+        mixed $value = null
     ): array {
         $this->data = $data;
         $this->resource = $resource;
@@ -67,15 +57,17 @@ class DataGuard
      * @param (callable(self): self)|string|null $key
      * @param string|null $operator
      * @param mixed $value
+     *
      * @return array
+     *
      * @throws InvalidConditionException
      */
     public function mask(
         array $data,
         string $resource,
-        $key = null,
+        callable|string|null $key = null,
         string $operator = null,
-        $value = null
+        mixed $value = null
     ): array {
         $this->mask = true;
 
@@ -130,11 +122,9 @@ class DataGuard
     }
 
     /**
-     * @param  string|int  $key
-     *
      * @throws InvalidConditionException
      */
-    protected function process(array &$data, $key): void
+    protected function process(array &$data, string|int $key): void
     {
         if ($this->match($data[$key])) {
             if ($this->mask) {

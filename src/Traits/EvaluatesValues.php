@@ -2,7 +2,6 @@
 
 namespace Acdphp\DataGuard\Traits;
 
-use Acdphp\DataGuard\DataGuard;
 use Acdphp\DataGuard\Exception\InvalidConditionException;
 
 trait EvaluatesValues
@@ -11,63 +10,21 @@ trait EvaluatesValues
 
     protected array $orConditions = [];
 
-    /**
-     * @param  mixed  $key
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     * @return DataGuard
-     */
-    public function whereResource($key = null, $operator = null, $value = null): self
+    public function whereResource(mixed $key = null, mixed $operator = null, mixed $value = null): self
     {
         $this->andConditions[] = $this->whereBase(...func_get_args());
 
         return $this;
     }
 
-    /**
-     * @param  mixed  $key
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     * @return DataGuard
-     */
-    public function orWhereResource($key = null, $operator = null, $value = null): self
+    public function orWhereResource(mixed $key = null, mixed $operator = null, mixed $value = null): self
     {
         $this->orConditions[] = $this->whereBase(...func_get_args());
 
         return $this;
     }
 
-    /**
-     * @param  mixed  $data
-     *
-     * @throws InvalidConditionException
-     */
-    protected function match($data): bool
-    {
-        foreach ($this->orConditions as $condition) {
-            // If 1 of the OR conditions is positive, automatically return true.
-            if ($this->matchEach($data, ...$condition)) {
-                return true;
-            }
-        }
-
-        foreach ($this->andConditions as $condition) {
-            // If 1 of the AND conditions is negative, automatically set to false.
-            if (! $this->matchEach($data, ...$condition)) {
-                return false;
-            }
-        }
-
-        // If both empty, return true
-        return true;
-    }
-
-    /**
-     * @param  mixed  $key
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     */
-    protected function whereBase($key = null, $operator = null, $value = null): array
+    protected function whereBase(mixed $key = null, mixed $operator = null, mixed $value = null): array
     {
         if (func_num_args() === 0) {
             $operator = '=';
@@ -90,13 +47,37 @@ trait EvaluatesValues
     }
 
     /**
-     * @param  (callable(self): self)|string|null  $key
-     * @param  mixed  $value
+     * @throws InvalidConditionException
+     */
+    protected function match(mixed $data): bool
+    {
+        foreach ($this->orConditions as $condition) {
+            // If 1 of the OR conditions is positive, automatically return true.
+            if ($this->matchEach($data, ...$condition)) {
+                return true;
+            }
+        }
+
+        foreach ($this->andConditions as $condition) {
+            // If 1 of the AND conditions is negative, automatically set to false.
+            if (! $this->matchEach($data, ...$condition)) {
+                return false;
+            }
+        }
+
+        // If both empty, return true
+        return true;
+    }
+
+    /**
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param mixed $value
      */
     protected function setConditions(
-        $key = null,
+        callable|string|null $key = null,
         string $operator = null,
-        $value = null
+        mixed $value = null
     ): void {
         if (! is_string($key) && is_callable($key)) {
             $key($this);
@@ -108,16 +89,19 @@ trait EvaluatesValues
     }
 
     /**
-     * @param  mixed  $data
-     * @param  mixed  $conditionValue
+     * @param mixed $data
+     * @param string|null $conditionResource
+     * @param string $conditionOperator
+     * @param mixed $conditionValue
      *
+     * @return bool
      * @throws InvalidConditionException
      */
     protected function matchEach(
-        $data,
+        mixed $data,
         ?string $conditionResource,
         string $conditionOperator,
-        $conditionValue
+        mixed $conditionValue
     ): bool {
         // Automatically search in the data if resource is not provided
         if ($conditionResource === null) {
@@ -165,13 +149,9 @@ trait EvaluatesValues
     }
 
     /**
-     * @param  mixed  $dataNode
-     * @param  mixed  $conditionOperator
-     * @param  mixed  $conditionValue
-     *
      * @throws InvalidConditionException
      */
-    protected function matchFinalNode($dataNode, $conditionOperator, $conditionValue): bool
+    protected function matchFinalNode(mixed $dataNode, string $conditionOperator, mixed $conditionValue): bool
     {
         // Operator evaluation
         switch ($conditionOperator) {

@@ -1,18 +1,15 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request: ~
 
 jobs:
-  test:
-
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.0, 7.4, 7.3]
-        dependency-version: [prefer-lowest, prefer-stable]
-
-    name: P${{ matrix.php }} - ${{ matrix.dependency-version }}
+  build:
+    name: Test Suite
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout code
@@ -21,17 +18,30 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.composer/cache/files
-          key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+          php-version: 8.0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
         with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring, zip, pcntl
-          coverage: none
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
 
-      - name: Install dependencies
+      - name: Install Composer dependencies
         run: composer install -n
+
+      - name: Validate composer.lock
+        run: composer validate --strict
+
+      - name: Run pint
+        run: vendor/bin/pint --test
+
+      - name: Run Phpstan
+        run: vendor/bin/phpstan --no-progress --debug --memory-limit=1G
+
       - name: Run tests
         run: vendor/bin/test tests
