@@ -16,9 +16,7 @@ class DataGuardTest extends TestCase
     {
         $data = ['key1' => 'val1', 'key2' => 'val2'];
         $protectedData = app(DataGuard::class)
-            ->setData($data)
-            ->hide('key2', 'val2')
-            ->getResult();
+            ->hide($data, 'key2', 'val2');
 
         $this->assertEquals(['key1' => 'val1'], $protectedData);
     }
@@ -149,11 +147,10 @@ class DataGuardTest extends TestCase
      */
     public function test_more_examples_as_array(array $data, string $resource, array $expectedResult, array $conditions = null): void
     {
-        $dg = app(DataGuard::class)
-            ->setData($data);
+        $result = null;
 
         if (func_num_args() === 4) {
-            $dg->hide($resource, function (DataGuard $dg) use ($conditions) {
+            $result = app(DataGuard::class)->hide($data, $resource, function (DataGuard $dg) use ($conditions) {
                 foreach ($conditions as $condition) {
                     $dg->whereResource(...$condition);
                 }
@@ -161,10 +158,10 @@ class DataGuardTest extends TestCase
                 return $dg;
             });
         } else {
-            $dg->hide($resource);
+            $result = app(DataGuard::class)->hide($data, $resource);
         }
 
-        $this->assertEquals($expectedResult, $dg->getResult());
+        $this->assertEquals($expectedResult, $result);
     }
 
     /**

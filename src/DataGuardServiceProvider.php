@@ -49,10 +49,7 @@ class DataGuardServiceProvider extends ServiceProvider
             $collection = $this;
 
             return collect(
-                app(DataGuard::class)
-                    ->setData($collection->toArray())
-                    ->hide(...func_get_args())
-                    ->getResult()
+                app(DataGuard::class)->hide($collection->toArray(), ...func_get_args())
             );
         });
 
@@ -68,10 +65,7 @@ class DataGuardServiceProvider extends ServiceProvider
             $collection = $this;
 
             return collect(
-                app(DataGuard::class)
-                    ->setData($collection->toArray())
-                    ->mask(...func_get_args())
-                    ->getResult()
+                app(DataGuard::class)->mask($collection->toArray(), ...func_get_args())
             );
         });
     }

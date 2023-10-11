@@ -12,13 +12,13 @@ composer require acdphp/data-guard
 
 ## Usage
 ```php
-$data = (new DataGuard())->setData(array $data);
+$data = (new DataGuard(':', '|', '[]', '###'));
 
 # Hide
-$data->hide(string $resource, string $search, string $operator, mixed $value);
+$data->hide(array $data, string $resource, string $search, string $operator, mixed $value);
 
 # Mask
-$data->mask(string $resource, string $search, string $operator, mixed $value);
+$data->mask(array $data, string $resource, string $search, string $operator, mixed $value);
 ```
 
 ### Data
@@ -115,9 +115,7 @@ $data = [
 
 // Hides profile if city = Asgard
 $protectedData = (new DataGuard())
-    ->setData($data)
-    ->hide('heroes[]|hero|villain|others[]:profile', 'address|address[]:city', '=', 'Asgard')
-    ->getResult();
+    ->hide($data, 'heroes[]|hero|villain|others[]:profile', 'address|address[]:city', '=', 'Asgard');
 
 print_r($protectedData);
 # Result:

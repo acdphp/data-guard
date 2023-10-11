@@ -4,7 +4,6 @@ namespace Acdphp\DataGuard\Traits;
 
 use Acdphp\DataGuard\DataGuard;
 use Acdphp\DataGuard\Exception\InvalidConditionException;
-use Acdphp\DataGuard\Helpers\Node;
 
 trait EvaluatesValues
 {
@@ -130,7 +129,7 @@ trait EvaluatesValues
         // Final condition node
         if (count($nodes) === 1) {
             $node = current($nodes);
-            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
+            $splits = $this->nodeSplit($node);
 
             foreach ($splits as $split) {
                 // Return true if condition key not is found in the resource data
@@ -147,10 +146,10 @@ trait EvaluatesValues
         // Each of parent resource nodes
         foreach ($nodes as $k => $node) {
             $levelResource = implode($this->separator, array_slice($nodes, $k + 1));
-            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
+            $splits = $this->nodeSplit($node);
 
             foreach ($splits as $split) {
-                if (Node::isArray($split, $data, $this->arrayIndicator)) {
+                if ($this->isNodeArray($split, $data)) {
                     foreach ($data[$split] as $dataSplit) {
                         if ($this->matchEach($dataSplit, $levelResource, $conditionOperator, $conditionValue)) {
                             return true;

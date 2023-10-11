@@ -1,27 +1,28 @@
 <?php
 
-namespace Acdphp\DataGuard\Helpers;
+namespace Acdphp\DataGuard\Traits;
 
-class Node
+trait NodeHelper
 {
-    public static function isArray(string &$node, iterable $data, string $arrayIndicator): bool
+    protected function isNodeArray(string &$node, iterable $data): bool
     {
-        if (substr($node, -strlen($arrayIndicator)) !== $arrayIndicator) {
+        if (substr($node, -strlen($this->arrayIndicator)) !== $this->arrayIndicator) {
             return false;
         }
 
-        $node = trim($node, $arrayIndicator);
+        $node = trim($node, $this->arrayIndicator);
 
         return isset($data[$node]) &&
             is_array($data[$node]) &&
             array_keys($data[$node]) === range(0, count($data[$node]) - 1);
     }
 
-    public static function split(string $node, string $splitter, string $arrayIndicator): array
+    protected function nodeSplit(string $node): array
     {
-        $splits = explode($splitter, $node);
+        $splits = explode($this->splitter, $node);
 
         // Sort splits to process array types first
+        $arrayIndicator = $this->arrayIndicator;
         return [
             ...array_filter($splits, static fn ($v) => str_ends_with($v, $arrayIndicator)),
             ...array_filter($splits, static fn ($v) => ! str_ends_with($v, $arrayIndicator)),

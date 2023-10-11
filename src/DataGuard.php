@@ -3,12 +3,13 @@
 namespace Acdphp\DataGuard;
 
 use Acdphp\DataGuard\Exception\InvalidConditionException;
-use Acdphp\DataGuard\Helpers\Node;
 use Acdphp\DataGuard\Traits\EvaluatesValues;
+use Acdphp\DataGuard\Traits\NodeHelper;
 
 class DataGuard
 {
     use EvaluatesValues;
+    use NodeHelper;
 
     protected string $separator;
 
@@ -24,53 +25,58 @@ class DataGuard
 
     protected bool $mask = false;
 
-    public function __construct(string $separator, string $splitter, string $arrayIndicator, string $maskWith)
-    {
+    public function __construct(
+        string $separator = ':',
+        string $splitter = '|',
+        string $arrayIndicator = '[]',
+        string $maskWith = '###'
+    ) {
         $this->separator = $separator;
         $this->splitter = $splitter;
         $this->arrayIndicator = $arrayIndicator;
         $this->maskWith = $maskWith;
     }
 
-    public function setData(array $data): self
-    {
+    /**
+     * @param array $data
+     * @param string $resource
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param mixed $value
+     * @return array
+     * @throws InvalidConditionException
+     */
+    public function hide(
+        array $data,
+        string $resource,
+        $key = null,
+        string $operator = null,
+        $value = null
+    ): array {
         $this->data = $data;
+        $this->resource = $resource;
 
-        return $this;
-    }
+        $this->setConditions(...array_slice(func_get_args(), 2));
 
-    public function getResult(): array
-    {
         return $this->protect($this->data, $this->resource);
     }
 
     /**
-     * @param  (callable(self): self)|string|null  $key
-     * @param  mixed  $value
-     */
-    public function hide(
-        string $resource,
-        $key = null,
-        string $operator = null,
-        $value = null
-    ): self {
-        $this->resource = $resource;
-
-        $this->setConditions(...array_slice(func_get_args(), 1));
-
-        return $this;
-    }
-
-    /**
-     * @param  (callable(self): self)|string|null  $key
-     * @param  mixed  $value
+     * @param array $data
+     * @param string $resource
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param mixed $value
+     * @return array
+     * @throws InvalidConditionException
      */
     public function mask(
+        array $data,
         string $resource,
         $key = null,
         string $operator = null,
         $value = null
-    ): self {
+    ): array {
         $this->mask = true;
 
         return $this->hide(...func_get_args());
@@ -86,10 +92,10 @@ class DataGuard
         // Final resource node match against condition
         if (count($nodes) === 1) {
             $node = current($nodes);
-            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
+            $splits = $this->nodeSplit($node);
 
             foreach ($splits as $split) {
-                if (Node::isArray($split, $data, $this->arrayIndicator)) {
+                if ($this->isNodeArray($split, $data)) {
                     for ($i = 0, $count = count($data[$split]); $i < $count; $i++) {
                         $this->process($data[$split], $i);
                     }
@@ -107,10 +113,10 @@ class DataGuard
         // Each of parent resource nodes
         foreach ($nodes as $i => $node) {
             $levelResource = implode($this->separator, array_slice($nodes, $i + 1));
-            $splits = Node::split($node, $this->splitter, $this->arrayIndicator);
+            $splits = $this->nodeSplit($node);
 
             foreach ($splits as $split) {
-                if (Node::isArray($split, $data, $this->arrayIndicator)) {
+                if ($this->isNodeArray($split, $data)) {
                     foreach ($data[$split] as $j => $single) {
                         $data[$split][$j] = $this->protect($data[$split][$j], $levelResource);
                     }
