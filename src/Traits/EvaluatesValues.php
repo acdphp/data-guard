@@ -70,12 +70,10 @@ trait EvaluatesValues
     }
 
     /**
-     * @param (callable(self): self)|string|null $key
-     * @param string|null $operator
-     * @param mixed $value
+     * @param  (callable(self): self)|string|null  $key
      */
     protected function setConditions(
-        callable|string|null $key = null,
+        callable|string $key = null,
         string $operator = null,
         mixed $value = null
     ): void {
@@ -89,12 +87,6 @@ trait EvaluatesValues
     }
 
     /**
-     * @param mixed $data
-     * @param string|null $conditionResource
-     * @param string $conditionOperator
-     * @param mixed $conditionValue
-     *
-     * @return bool
      * @throws InvalidConditionException
      */
     protected function matchEach(

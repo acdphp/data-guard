@@ -26,20 +26,14 @@ class DataGuard
     }
 
     /**
-     * @param array $data
-     * @param string $resource
-     * @param (callable(self): self)|string|null $key
-     * @param string|null $operator
-     * @param mixed $value
-     *
-     * @return array
+     * @param  (callable(self): self)|string|null  $key
      *
      * @throws InvalidConditionException
      */
     public function hide(
         array $data,
         string $resource,
-        callable|string|null $key = null,
+        callable|string $key = null,
         string $operator = null,
         mixed $value = null
     ): array {
@@ -52,20 +46,14 @@ class DataGuard
     }
 
     /**
-     * @param array $data
-     * @param string $resource
-     * @param (callable(self): self)|string|null $key
-     * @param string|null $operator
-     * @param mixed $value
-     *
-     * @return array
+     * @param  (callable(self): self)|string|null  $key
      *
      * @throws InvalidConditionException
      */
     public function mask(
         array $data,
         string $resource,
-        callable|string|null $key = null,
+        callable|string $key = null,
         string $operator = null,
         mixed $value = null
     ): array {

@@ -23,6 +23,7 @@ trait NodeHelper
 
         // Sort splits to process array types first
         $arrayIndicator = $this->arrayIndicator;
+
         return [
             ...array_filter($splits, static fn ($v) => str_ends_with($v, $arrayIndicator)),
             ...array_filter($splits, static fn ($v) => ! str_ends_with($v, $arrayIndicator)),
