@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
+      - uses: symfonycorp/security-checker-action@v4
+
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
 
