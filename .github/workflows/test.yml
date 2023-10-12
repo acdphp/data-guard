@@ -18,33 +18,23 @@ jobs:
     name: P${{ matrix.php }} - ${{ matrix.dependency-version }}
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - uses: symfonycorp/security-checker-action@v4
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
 
-      - name: Setup PHP, with composer and extensions
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, zip, pcntl
           coverage: none
-
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-
 
       - name: Install Composer dependencies
         run: composer install -n
-
-      - name: Validate composer.lock
-        run: composer validate --strict
 
       - name: Run cs fixer
         run: vendor/bin/php-cs-fixer fix --dry-run
