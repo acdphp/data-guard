@@ -1,21 +1,24 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request: ~
 
 jobs:
-  test:
-
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0, 7.4, 7.3]
-        dependency-version: [prefer-lowest, prefer-stable]
+        php: [ 8.2, 8.1, 8.0, 7.4 ]
+        dependency-version: [ prefer-lowest, prefer-stable ]
 
     name: P${{ matrix.php }} - ${{ matrix.dependency-version }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Cache dependencies
@@ -28,10 +31,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, zip, pcntl
           coverage: none
 
-      - name: Install dependencies
+      - name: Install Composer dependencies
         run: composer install -n
+
+      - name: Run cs fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run
+
+      - name: Run Phpstan
+        run: vendor/bin/phpstan --no-progress --debug --memory-limit=1G
+
       - name: Run tests
         run: vendor/bin/phpunit tests
