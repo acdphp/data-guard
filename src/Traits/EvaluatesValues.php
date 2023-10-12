@@ -15,7 +15,7 @@ trait EvaluatesValues
      * @param mixed|null $key
      * @param mixed|null $operator
      * @param mixed|null $value
-     * @return EvaluatesValues|DataGuard
+     * @return DataGuard
      */
     public function whereResource($key = null, $operator = null, $value = null): self
     {
@@ -28,7 +28,7 @@ trait EvaluatesValues
      * @param mixed|null $key
      * @param mixed|null $operator
      * @param mixed|null $value
-     * @return EvaluatesValues|DataGuard
+     * @return DataGuard
      */
     public function orWhereResource($key = null, $operator = null, $value = null): self
     {
