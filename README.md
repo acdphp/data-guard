@@ -1,9 +1,9 @@
-# data-guard
-![](https://github.com/cdinopol/data-guard/workflows/Tests/badge.svg?branch=master)
+# Data Guard
+
 [![Latest Stable Version](http://poser.pugx.org/cdinopol/data-guard/v)](https://packagist.org/packages/cdinopol/data-guard)
 [![License](http://poser.pugx.org/cdinopol/data-guard/license)](https://packagist.org/packages/cdinopol/data-guard)
 
-Filter out data from an array of a given conditions
+Hides or masks array or collection elements on specific levels from a given specifications and conditions.
 
 ## Installation
 ```sh
@@ -12,30 +12,57 @@ composer require acdphp/data-guard
 
 ## Usage
 ```php
-$data = (new DataGuard(':', '|', '[]', '###'));
-
 # Hide
-$data->hide(array $data, string $resource, string $search, string $operator, mixed $value);
+(new DataGuard())
+    ->hide(array $data, string $resource, string $search, string $operator, mixed $value);
 
 # Mask
-$data->mask(array $data, string $resource, string $search, string $operator, mixed $value);
+(new DataGuard())
+    ->mask(array $data, string $resource, string $search, string $operator, mixed $value);
 ```
 
-### Data
+## Collection support
+- This can also be used directly with illuminate collection.
+```php
+$protectedData = collect(['a' => 1, 'b' => 2])
+    ->hide('a')
+    ->mask('b');
+
+print_r($protectedData->toArray());
+# Result:
+['b' => '###'];
+```
+
+---
+
+## Resource and Search Indicators
+- `|`   - key split, keys to match on the same level.
+- `:`   - key separator, hierarchy of keys to match from root to child.
+- `[]`  - array indicator, DataGuard will look inside each of the values instead of directly looking for the next key.
+- `###` - mask with, when calling `mask()`, data will be replaced with a string instead of removing it.
+
+#### You may modify the indicators by passing it as a constructor argument.
+```php
+new DataGuard(':', '|', '[]', '###')
+```
+
+#### When used in a framework like laravel, you may publish the config to change the indicators.
+```sh
+php artisan vendor:publish --tag=dataguard-config
+```
+
+## Data (array)
 - your data array (preferably an associative array)
 
-### Resource
+## Resource (string)
 - string (example format: `'orders[]|order:line_items[]:sku'`)
 - this is the key point of data to be processed.
-- `|` - key split, keys to match on the same level.
-- `:` - key separator, hierarchy of keys to match from root to child.
-- `[]` - array indicator, DataGuard will look inside each of the values instead of directly looking for the next key.
 
-## Search (optional)
+## Search (string, optional)
 - instead of matching the given resource directly, you can pass another resource (same formatting as resource) as the first index of condition to match against the operator+value. search_resource will be searched through and matched, but the process point will still be on the given resource.
 - if not provided, last node of resource will be matched.
 
-##  Operators (optional)
+## Operator (string, optional)
 ```
 1. =     : equals
 2. !=    : not equals
@@ -49,10 +76,12 @@ $data->mask(array $data, string $resource, string $search, string $operator, mix
 ```
 - if not provided, `=` (equals) will be used
 
-## Value
+## Value (mixed, optional)
 - matches the search or resource with the given operator.
 
-## Usage
+---
+
+## Example
 ```php
 use Cdinopol\DataGuard\DataGuard;
 
@@ -147,6 +176,8 @@ print_r($protectedData);
 ```
 
 Please check the [unit test](tests/DataGuardTest.php) for more usage examples.
+
+---
 
 ## License
 The MIT License (MIT). Please see [License File](LICENSE) for more information.

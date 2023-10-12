@@ -1,7 +1,8 @@
 {
     "name": "acdphp/data-guard",
-    "description": "Filter out data from an array of a given conditions",
+    "description": "Hides or masks array or collection elements on specific levels from a given specifications and conditions.",
     "type": "library",
+    "keywords": ["array", "collection", "hiding", "masking"],
     "license": "MIT",
     "authors": [
         {
@@ -36,11 +37,6 @@
             "providers": [
                 "Acdphp\\DataGuard\\DataGuardServiceProvider"
             ]
-        }
-    },
-    "config": {
-        "platform": {
-            "php": "7.4"
         }
     }
 }
