@@ -8,8 +8,14 @@ on:
 
 jobs:
   build:
-    name: Test Suite
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [ 8.2, 8.1, 8.0, 7.4 ]
+        dependency-version: [ prefer-lowest, prefer-stable ]
+
+    name: P${{ matrix.php }} - ${{ matrix.dependency-version }}
 
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +25,9 @@ jobs:
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, zip, pcntl
+          coverage: none
 
       - name: Get composer cache directory
         id: composer-cache
@@ -38,8 +46,8 @@ jobs:
       - name: Validate composer.lock
         run: composer validate --strict
 
-      - name: Run pint
-        run: vendor/bin/pint --test
+      - name: Run cs fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run
 
       - name: Run Phpstan
         run: vendor/bin/phpstan --no-progress --debug --memory-limit=1G

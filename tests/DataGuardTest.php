@@ -7,12 +7,7 @@ use Orchestra\Testbench\TestCase;
 
 class DataGuardTest extends TestCase
 {
-    protected function getPackageProviders($app)
-    {
-        return ['Acdphp\DataGuard\DataGuardServiceProvider'];
-    }
-
-    public function test_basic_array(): void
+    public function testBasicArray(): void
     {
         $data = ['key1' => 'val1', 'key2' => 'val2'];
         $protectedData = app(DataGuard::class)
@@ -21,72 +16,71 @@ class DataGuardTest extends TestCase
         $this->assertEquals(['key1' => 'val1'], $protectedData);
     }
 
-    public function test_full_example(): void
+    public function testFullExample(): void
     {
         $data = collect([
             'hero' => [
-                'name' => 'Thor',
+                'name'    => 'Thor',
                 'profile' => [
                     'address' => [
-                        'city' => 'Asgard',
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                 ],
-
             ],
             'villain' => [
-                'name' => 'Loki',
+                'name'    => 'Loki',
                 'profile' => [
                     'address' => [
-                        'city' => 'Asgard',
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                 ],
             ],
             'others' => [
                 [
-                    'name' => 'John',
+                    'name'    => 'John',
                     'profile' => [
                         'address' => [
-                            'city' => 'Asgard',
+                            'city'    => 'Asgard',
                             'country' => 'Asgard',
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Doe',
+                    'name'    => 'Doe',
                     'profile' => [
                         'address' => [
-                            'city' => 'New York',
+                            'city'    => 'New York',
                             'country' => 'USA',
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Carl',
+                    'name'    => 'Carl',
                     'profile' => [
                         'address' => [
                             [
-                                'city' => 'Chicago',
+                                'city'    => 'Chicago',
                                 'country' => 'USA',
                             ],
                             [
-                                'city' => 'Stockholm',
+                                'city'    => 'Stockholm',
                                 'country' => 'Asgard',
                             ],
                         ],
                     ],
                 ],
                 [
-                    'name' => 'Guy',
+                    'name'    => 'Guy',
                     'profile' => [
                         'addresses' => [
                             [
-                                'city' => 'Chicago',
+                                'city'    => 'Chicago',
                                 'country' => 'USA',
                             ],
                             [
-                                'city' => 'Uppsala',
+                                'city'    => 'Uppsala',
                                 'country' => 'Asgard',
                             ],
                         ],
@@ -115,10 +109,10 @@ class DataGuardTest extends TestCase
                     'name' => 'John',
                 ],
                 [
-                    'name' => 'Doe',
+                    'name'    => 'Doe',
                     'profile' => [
                         'address' => [
-                            'city' => 'New York',
+                            'city'    => 'New York',
                             'country' => 'USA',
                         ],
                     ],
@@ -133,7 +127,7 @@ class DataGuardTest extends TestCase
         ], $protectedData->toArray());
     }
 
-    public function test_mask(): void
+    public function testMask(): void
     {
         $data = collect(['a' => 'ABC', 'b' => 'DEF']);
 
@@ -145,7 +139,7 @@ class DataGuardTest extends TestCase
     /**
      * @dataProvider \Acdphp\DataGuard\Tests\DataProvider::provide()
      */
-    public function test_more_examples_as_array(array $data, string $resource, array $expectedResult, array $conditions = null): void
+    public function testMoreExamplesAsArray(array $data, string $resource, array $expectedResult, array $conditions = null): void
     {
         $result = null;
 
@@ -167,7 +161,7 @@ class DataGuardTest extends TestCase
     /**
      * @dataProvider \Acdphp\DataGuard\Tests\DataProvider::provide()
      */
-    public function test_more_examples_as_collection(array $data, string $resource, array $expectedResult, array $conditions = null): void
+    public function testMoreExamplesAsCollection(array $data, string $resource, array $expectedResult, array $conditions = null): void
     {
         $data = collect($data);
 
@@ -184,5 +178,10 @@ class DataGuardTest extends TestCase
         }
 
         $this->assertEquals($expectedResult, $guarded->toArray());
+    }
+
+    protected function getPackageProviders($app)
+    {
+        return ['Acdphp\DataGuard\DataGuardServiceProvider'];
     }
 }

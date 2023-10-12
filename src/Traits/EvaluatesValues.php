@@ -2,6 +2,7 @@
 
 namespace Acdphp\DataGuard\Traits;
 
+use Acdphp\DataGuard\DataGuard;
 use Acdphp\DataGuard\Exception\InvalidConditionException;
 
 trait EvaluatesValues
@@ -10,21 +11,39 @@ trait EvaluatesValues
 
     protected array $orConditions = [];
 
-    public function whereResource(mixed $key = null, mixed $operator = null, mixed $value = null): self
+    /**
+     * @param mixed|null $key
+     * @param mixed|null $operator
+     * @param mixed|null $value
+     * @return EvaluatesValues|DataGuard
+     */
+    public function whereResource($key = null, $operator = null, $value = null): self
     {
         $this->andConditions[] = $this->whereBase(...func_get_args());
 
         return $this;
     }
 
-    public function orWhereResource(mixed $key = null, mixed $operator = null, mixed $value = null): self
+    /**
+     * @param mixed|null $key
+     * @param mixed|null $operator
+     * @param mixed|null $value
+     * @return EvaluatesValues|DataGuard
+     */
+    public function orWhereResource($key = null, $operator = null, $value = null): self
     {
         $this->orConditions[] = $this->whereBase(...func_get_args());
 
         return $this;
     }
 
-    protected function whereBase(mixed $key = null, mixed $operator = null, mixed $value = null): array
+    /**
+     * @param mixed|null $key
+     * @param mixed|null $operator
+     * @param mixed|null $value
+     * @return array
+     */
+    protected function whereBase($key = null, $operator = null, $value = null): array
     {
         if (func_num_args() === 0) {
             $operator = '=';
@@ -47,9 +66,11 @@ trait EvaluatesValues
     }
 
     /**
+     * @param mixed $data
+     * @return bool
      * @throws InvalidConditionException
      */
-    protected function match(mixed $data): bool
+    protected function match($data): bool
     {
         foreach ($this->orConditions as $condition) {
             // If 1 of the OR conditions is positive, automatically return true.
@@ -70,12 +91,14 @@ trait EvaluatesValues
     }
 
     /**
-     * @param  (callable(self): self)|string|null  $key
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param mixed|null $value
      */
     protected function setConditions(
-        callable|string $key = null,
+        $key = null,
         string $operator = null,
-        mixed $value = null
+        $value = null
     ): void {
         if (! is_string($key) && is_callable($key)) {
             $key($this);
@@ -87,13 +110,18 @@ trait EvaluatesValues
     }
 
     /**
+     * @param mixed $data
+     * @param string|null $conditionResource
+     * @param string $conditionOperator
+     * @param mixed $conditionValue
+     * @return bool
      * @throws InvalidConditionException
      */
     protected function matchEach(
-        mixed $data,
+        $data,
         ?string $conditionResource,
         string $conditionOperator,
-        mixed $conditionValue
+        $conditionValue
     ): bool {
         // Automatically search in the data if resource is not provided
         if ($conditionResource === null) {
@@ -141,9 +169,13 @@ trait EvaluatesValues
     }
 
     /**
+     * @param mixed $dataNode
+     * @param string $conditionOperator
+     * @param mixed $conditionValue
+     * @return bool
      * @throws InvalidConditionException
      */
-    protected function matchFinalNode(mixed $dataNode, string $conditionOperator, mixed $conditionValue): bool
+    protected function matchFinalNode($dataNode, string $conditionOperator, $conditionValue): bool
     {
         // Operator evaluation
         switch ($conditionOperator) {

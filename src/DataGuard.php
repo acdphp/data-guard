@@ -11,6 +11,14 @@ class DataGuard
     use EvaluatesValues;
     use NodeHelper;
 
+    protected string $splitter;
+
+    protected string $separator;
+
+    protected string $arrayIndicator;
+
+    protected string $maskWith;
+
     protected array $data;
 
     protected string $resource;
@@ -18,24 +26,32 @@ class DataGuard
     protected bool $mask = false;
 
     public function __construct(
-        protected string $separator = ':',
-        protected string $splitter = '|',
-        protected string $arrayIndicator = '[]',
-        protected string $maskWith = '###'
+        string $separator = ':',
+        string $splitter = '|',
+        string $arrayIndicator = '[]',
+        string $maskWith = '###'
     ) {
+        $this->maskWith = $maskWith;
+        $this->arrayIndicator = $arrayIndicator;
+        $this->separator = $separator;
+        $this->splitter = $splitter;
     }
 
     /**
-     * @param  (callable(self): self)|string|null  $key
-     *
+     * @param array $data
+     * @param string $resource
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param null $value
+     * @return array
      * @throws InvalidConditionException
      */
     public function hide(
         array $data,
         string $resource,
-        callable|string $key = null,
+        $key = null,
         string $operator = null,
-        mixed $value = null
+        $value = null
     ): array {
         $this->data = $data;
         $this->resource = $resource;
@@ -46,16 +62,20 @@ class DataGuard
     }
 
     /**
-     * @param  (callable(self): self)|string|null  $key
-     *
+     * @param array $data
+     * @param string $resource
+     * @param (callable(self): self)|string|null $key
+     * @param string|null $operator
+     * @param null $value
+     * @return array
      * @throws InvalidConditionException
      */
     public function mask(
         array $data,
         string $resource,
-        callable|string $key = null,
+        $key = null,
         string $operator = null,
-        mixed $value = null
+        $value = null
     ): array {
         $this->mask = true;
 
@@ -63,6 +83,9 @@ class DataGuard
     }
 
     /**
+     * @param array $data
+     * @param string $resource
+     * @return array
      * @throws InvalidConditionException
      */
     protected function protect(array $data, string $resource): array
@@ -110,9 +133,11 @@ class DataGuard
     }
 
     /**
+     * @param array $data
+     * @param string|int $key
      * @throws InvalidConditionException
      */
-    protected function process(array &$data, string|int $key): void
+    protected function process(array &$data, $key): void
     {
         if ($this->match($data[$key])) {
             if ($this->mask) {

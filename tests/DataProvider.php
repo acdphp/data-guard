@@ -44,10 +44,10 @@ class DataProvider
         return [
             'heroes' => [
                 [
-                    'name' => 'Tony',
+                    'name'     => 'Tony',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
+                    'address'  => [
+                        'city'    => 'New York',
                         'country' => 'United States',
                     ],
                     'assets' => [
@@ -57,10 +57,10 @@ class DataProvider
                     ],
                 ],
                 [
-                    'name' => 'Natalia',
+                    'name'     => 'Natalia',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
+                    'address'  => [
+                        'city'    => 'Moscow',
                         'country' => 'Russia',
                     ],
                     'assets' => [
@@ -69,10 +69,10 @@ class DataProvider
                     ],
                 ],
                 [
-                    'name' => 'Thor',
+                    'name'     => 'Thor',
                     'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
+                    'address'  => [
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                     'assets' => [
@@ -89,10 +89,10 @@ class DataProvider
         return [
             'heroes' => [
                 [
-                    'name' => 'Tony',
+                    'name'     => 'Tony',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
+                    'address'  => [
+                        'city'    => 'New York',
                         'country' => 'United States',
                     ],
                     'assets' => [
@@ -100,19 +100,19 @@ class DataProvider
                     ],
                 ],
                 [
-                    'name' => 'Natalia',
+                    'name'     => 'Natalia',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
+                    'address'  => [
+                        'city'    => 'Moscow',
                         'country' => 'Russia',
                     ],
                     'assets' => [],
                 ],
                 [
-                    'name' => 'Thor',
+                    'name'     => 'Thor',
                     'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
+                    'address'  => [
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                     'assets' => [
@@ -128,10 +128,10 @@ class DataProvider
         return [
             'heroes' => [
                 [
-                    'name' => 'Natalia',
+                    'name'     => 'Natalia',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
+                    'address'  => [
+                        'city'    => 'Moscow',
                         'country' => 'Russia',
                     ],
                     'assets' => [
@@ -148,10 +148,10 @@ class DataProvider
         return [
             'heroes' => [
                 [
-                    'name' => 'Tony',
+                    'name'     => 'Tony',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'New York',
+                    'address'  => [
+                        'city'    => 'New York',
                         'country' => 'United States',
                     ],
                     'assets' => [
@@ -161,10 +161,10 @@ class DataProvider
                     ],
                 ],
                 [
-                    'name' => 'Natalia',
+                    'name'     => 'Natalia',
                     'deceased' => true,
-                    'address' => [
-                        'city' => 'Moscow',
+                    'address'  => [
+                        'city'    => 'Moscow',
                         'country' => 'Russia',
                     ],
                     'assets' => [
@@ -181,10 +181,10 @@ class DataProvider
         return [
             'heroes' => [
                 [
-                    'name' => 'Thor',
+                    'name'     => 'Thor',
                     'deceased' => false,
-                    'address' => [
-                        'city' => 'Asgard',
+                    'address'  => [
+                        'city'    => 'Asgard',
                         'country' => 'Asgard',
                     ],
                     'assets' => [
