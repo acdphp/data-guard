@@ -1,7 +1,7 @@
 # Data Guard
 
-[![Latest Stable Version](http://poser.pugx.org/cdinopol/data-guard/v)](https://packagist.org/packages/cdinopol/data-guard)
-[![License](http://poser.pugx.org/cdinopol/data-guard/license)](https://packagist.org/packages/cdinopol/data-guard)
+[![Latest Stable Version](http://poser.pugx.org/acdphp/data-guard/v)](https://packagist.org/packages/acdphp/data-guard)
+[![License](http://poser.pugx.org/acdphp/data-guard/license)](https://packagist.org/packages/acdphp/data-guard)
 
 Hides or masks array or collection elements on specific levels from a given specifications and conditions.
 
